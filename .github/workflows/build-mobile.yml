@@ -1,0 +1,126 @@
+name: Build Mobile App
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  install-deps:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Android Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+  android-build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: install-deps
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Android SDK tools
+        uses: android-actions/setup-android@v4
+        with:
+          api-level: 33
+          target: android-33
+          ndk: 25.2.9519653
+          components: build-tools;33.0.2,platforms;android-33
+          cache: gradle
+
+      - name: Generate Android project if missing
+        run: |
+          if [ ! -d android ]; then
+            npx react-native config > /dev/null 2>&1 || true
+          fi
+
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleRelease --stacktrace
+
+      - name: Upload Android APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MicLink-android-apk
+          path: android/app/build/outputs/apk/release/*.apk
+
+  ios-build:
+    name: Build iOS archive
+    runs-on: macos-latest
+    needs: install-deps
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install CocoaPods
+        run: sudo gem install cocoapods
+
+      - name: Generate iOS project if missing
+        run: |
+          if [ ! -d ios ]; then
+            npx react-native config > /dev/null 2>&1 || true
+          fi
+
+      - name: Install pods
+        run: |
+          cd ios
+          pod install --repo-update
+
+      - name: Build iOS archive
+        run: |
+          cd ios
+          xcodebuild -workspace MicLink.xcworkspace -scheme MicLink -configuration Release -sdk iphoneos -archivePath $PWD/build/MicLink.xcarchive archive
+
+      - name: Export IPA
+        run: |
+          cd ios
+          xcodebuild -exportArchive -archivePath build/MicLink.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath build/ipa || true
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MicLink-ios-artifact
+          path: ios/build/ipa/**/*.ipa
