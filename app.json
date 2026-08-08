@@ -16,10 +16,5 @@
         "android.permission.INTERNET"
       ]
     }
-  },
-  "name": "MicLink",
-  "displayName": "MicLink",
-  "android": {
-    "package": "com.miclink.app"
   }
 }
