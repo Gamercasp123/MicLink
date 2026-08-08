@@ -65,7 +65,7 @@ jobs:
       - name: Generate Android project if missing
         run: |
           if [ ! -d android ]; then
-            npx react-native config > /dev/null 2>&1 || true
+            npx react-native init MicLink --skip-install || true
           fi
 
       - name: Build Android APK
