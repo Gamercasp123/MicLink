@@ -69,6 +69,9 @@ jobs:
             ndk;25.2.9519653
           accept-android-sdk-licenses: true
 
+      - name: Auto-accept Android Licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
       - name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
 
@@ -124,5 +127,5 @@ jobs:
       - name: Upload iOS App Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MicLink
+          name: MicLink-ios-simulator
           path: build/Build/Products/Release-iphonesimulator/*.app
