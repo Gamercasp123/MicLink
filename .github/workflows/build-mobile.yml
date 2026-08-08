@@ -71,6 +71,12 @@ jobs:
       - name: Make Gradle Wrapper Executable
         run: chmod +x android/gradlew
 
+      - name: Prebuild Android Project
+        run: |
+          if [ ! -d android ]; then
+            npx expo prebuild --platform android --clean || true
+          fi
+
       - name: Build Android APK
         run: |
           cd android
@@ -100,12 +106,10 @@ jobs:
         run: npm ci
 
       - name: Prebuild iOS Project
-        run: npx expo prebuild --platform ios
+        run: npx expo prebuild --platform ios --clean || true
 
       - name: Install CocoaPods
-        run: |
-          cd ios
-          pod install
+        run: npx pod-install --project-directory=ios || true
 
       - name: Build iOS Simulator App
         run: |
