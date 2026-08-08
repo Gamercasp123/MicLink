@@ -1,5 +1,8 @@
 # MicLink
 
+
+authour neonfractrue
+
 MicLink is a cross-platform React Native app for streaming live microphone audio from an iOS/Android phone to a local PC over UDP.
 
 ## Installation
