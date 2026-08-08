@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
@@ -46,9 +46,15 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Setup Java (JDK 17)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
 
       - name: Install dependencies
         run: npm ci
@@ -62,11 +68,8 @@ jobs:
           components: build-tools;33.0.2,platforms;android-33
           cache: gradle
 
-      - name: Generate Android project if missing
-        run: |
-          if [ ! -d android ]; then
-            npx react-native init MicLink --skip-install || true
-          fi
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x android/gradlew
 
       - name: Build Android APK
         run: |
@@ -80,47 +83,41 @@ jobs:
           path: android/app/build/outputs/apk/release/*.apk
 
   ios-build:
-    name: Build iOS archive
+    name: Build iOS App
     runs-on: macos-latest
     needs: install-deps
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Prebuild iOS Project
+        run: npx expo prebuild --platform ios
+
       - name: Install CocoaPods
-        run: sudo gem install cocoapods
-
-      - name: Generate iOS project if missing
-        run: |
-          if [ ! -d ios ]; then
-            npx react-native init MicLink --skip-install || true
-          fi
-
-      - name: Install pods
         run: |
           cd ios
-          pod install --repo-update
+          pod install
 
-      - name: Build iOS archive
+      - name: Build iOS Simulator App
         run: |
-          cd ios
-          xcodebuild -workspace MicLink.xcworkspace -scheme MicLink -configuration Release -sdk iphoneos -archivePath $PWD/build/MicLink.xcarchive archive
+          xcodebuild -workspace ios/MicLink.xcworkspace \
+                     -scheme MicLink \
+                     -sdk iphonesimulator \
+                     -configuration Release \
+                     CODE_SIGNING_ALLOWED=NO \
+                     derivedDataPath build
 
-      - name: Export IPA
-        run: |
-          cd ios
-          xcodebuild -exportArchive -archivePath build/MicLink.xcarchive -exportOptionsPlist ExportOptions.plist -exportPath build/ipa || true
-
-      - name: Upload iOS artifact
+      - name: Upload iOS App Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MicLink-ios-artifact
-          path: ios/build/ipa/**/*.ipa
+          name: MicLink
+          path: build/Build/Products/Release-iphonesimulator/*.app
