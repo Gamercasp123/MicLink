@@ -2,6 +2,6 @@
   "name": "MicLink",
   "displayName": "MicLink",
   "android": {
-    "package": "com.anonymous.miclink"
+    "package": "com.miclink.app"
   }
 }

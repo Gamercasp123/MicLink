@@ -1,4 +1,4 @@
-package com.anonymous.miclink
+package com.miclink.app
 
 import android.app.Application
 import android.content.res.Configuration

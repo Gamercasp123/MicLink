@@ -124,8 +124,13 @@ jobs:
                      CODE_SIGNING_ALLOWED=NO \
                      derivedDataPath build
 
+      - name: Package iOS App
+        run: |
+          cd build/Build/Products/Release-iphonesimulator
+          zip -r MicLink-ios.app.zip MicLink.app
+
       - name: Upload iOS App Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MicLink-ios-simulator
-          path: build/Build/Products/Release-iphonesimulator/*.app
+          name: MicLink-ios
+          path: build/Build/Products/Release-iphonesimulator/MicLink-ios.app.zip
