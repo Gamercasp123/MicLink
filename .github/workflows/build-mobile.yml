@@ -101,7 +101,7 @@ jobs:
       - name: Generate iOS project if missing
         run: |
           if [ ! -d ios ]; then
-            npx react-native config > /dev/null 2>&1 || true
+            npx react-native init MicLink --skip-install || true
           fi
 
       - name: Install pods
