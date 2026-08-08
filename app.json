@@ -1,4 +1,22 @@
 {
+  "expo": {
+    "name": "MicLink",
+    "slug": "miclink",
+    "version": "0.1.0",
+    "ios": {
+      "bundleIdentifier": "com.miclink.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "MicLink needs microphone access to stream audio to your PC."
+      }
+    },
+    "android": {
+      "package": "com.miclink.app",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.INTERNET"
+      ]
+    }
+  },
   "name": "MicLink",
   "displayName": "MicLink",
   "android": {

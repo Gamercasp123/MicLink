@@ -1,1 +1,31 @@
 node_modules
+
+# Expo native build outputs (regenerated via `expo prebuild`)
+android/
+ios/
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+
+# Native build artifacts
+*.apk
+*.aab
+*.ipa
+build/
+
+# Metro
+.metro-health-check*
+
+# npm/yarn
+npm-debug.*
+yarn-error.log
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+*.iml
